@@ -16,9 +16,9 @@ type WebmentionToRss (rssService:RssService) =
                 .Subtract(TimeSpan.FromDays(31))
                 .ToString()
 
-        // let query = $"Timestamp ge datetime'{timespan}'"
+        let query = $"Timestamp ge datetime'{timespan}'"
         
-        let webmentions = t.Query<WebmentionEntity>()
+        let webmentions = t.Query<WebmentionEntity> query
 
         webmentions
 
