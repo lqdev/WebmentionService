@@ -5,6 +5,7 @@ open Microsoft.Extensions.DependencyInjection
 open Microsoft.Azure.Functions.Extensions.DependencyInjection
 open WebmentionFs
 open WebmentionFs.Services
+open WebmentionService.Services
 
 type Startup () = 
     inherit FunctionsStartup () 
@@ -23,10 +24,14 @@ type Startup () =
             // Add webmention validation service
             builder.Services.AddScoped<WebmentionValidationService>() |> ignore
 
+            // Add receiver service
             builder.Services.AddScoped<IWebmentionReceiver<Webmention>,WebmentionReceiverService>(fun (s:IServiceProvider) ->
                 let requestValidationService = s.GetRequiredService<RequestValidationService>()
                 let webmentionValidationService = s.GetRequiredService<WebmentionValidationService>()
                 new WebmentionReceiverService(requestValidationService,webmentionValidationService)) |> ignore
+
+            // Add RSS service
+            builder.Services.AddScoped<RssService>() |> ignore
 
 [<assembly: FunctionsStartup(typeof<Startup>)>]
 
