@@ -19,8 +19,8 @@ type ReceiveWebmention (webmentionReceiver: IWebmentionReceiver<Webmention>) =
 
     let mapMentionToTableEntity (m:Webmention) = 
         
-        let encodedSourceUrl  = urlEncode m.Urls.Source
-        let encodedTargetUrl = urlEncode m.Urls.Target
+        let encodedSourceUrl  = urlEncode m.RequestBody.Source
+        let encodedTargetUrl = urlEncode m.RequestBody.Target
         
         let entity = 
             new WebmentionEntity(
@@ -45,7 +45,7 @@ type ReceiveWebmention (webmentionReceiver: IWebmentionReceiver<Webmention>) =
             
             log.LogInformation("Processing webmention request")
 
-            let! validationResult = x.WebmentionReceiver.ValidateAsync(req)
+            let! validationResult = x.WebmentionReceiver.ReceiveAsync(req)
 
             let response = 
                 match validationResult with

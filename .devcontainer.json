@@ -1,0 +1,7 @@
+{
+    "extensions": [
+        "Ionide.Ionide-fsharp",
+        "max-SS.cyberpunk",
+        "ms-vscode.live-server"   
+    ]
+}
