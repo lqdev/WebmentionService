@@ -37,6 +37,8 @@ type WebmentionToRss (rssService:RssService) =
 
             let rss = x.RssService.BuildRssFeed mentions "lqdev's Webmentions" "http://lqdev.me" "lqdev's Webmentions" "en"
 
+            log.LogInformation(rss.ToString())                
+
             use xmlWriter = XmlWriter.Create(rssBlob)
 
             rss.WriteTo(xmlWriter) |> ignore
