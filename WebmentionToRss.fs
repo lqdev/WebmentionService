@@ -18,7 +18,7 @@ type WebmentionToRss (rssService:RssService) =
 
         // let query = $"Timestamp ge datetime'{timespan}'"
         
-        let webmentions = t.Query<WebmentionEntity>
+        let webmentions = t.Query<WebmentionEntity>()
 
         webmentions
 
