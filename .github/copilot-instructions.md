@@ -7,7 +7,7 @@
 ### Project Characteristics
 - **Language**: F# (functional programming)
 - **Framework**: Azure Functions v4, .NET 6.0
-- **Size**: Small codebase (~500 lines total, 6 F# source files)
+- **Size**: Small codebase (~500 lines total, 5 F# source files)
 - **Type**: Serverless microservice / Azure Functions application
 - **No Tests**: This repository does not have a test suite
 
