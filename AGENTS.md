@@ -161,7 +161,7 @@ Configured in [Program.fs](Program.fs) during dependency injection setup.
 Current deployment target:
 - **Function App**: `lqdevwebmentions`
 - **Resource Group**: `luisquintanillamewm-rg`
-- **Subscription**: `04edd16f-fa44-4e69-87c0-72a91e94a540`
+- **Subscription**: `0ecbb599-849f-4d64-a97d-808abd3b8572`
 - **Runtime Stack**: `DOTNET-ISOLATED|10.0`
 
 ## Testing & Validation

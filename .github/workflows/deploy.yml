@@ -9,6 +9,7 @@ env:
   AZURE_FUNCTIONAPP_NAME: lqdevwebmentions
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
   DOTNET_VERSION: '10.0.x'
+  AZURE_SUBSCRIPTION_ID: '0ecbb599-849f-4d64-a97d-808abd3b8572'
 
 jobs:
   build-and-deploy:
