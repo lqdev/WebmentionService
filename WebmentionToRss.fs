@@ -3,7 +3,7 @@ namespace WebmentionService
 open System
 open System.IO
 open System.Xml
-open Microsoft.Azure.WebJobs
+open Microsoft.Azure.Functions.Worker
 open Microsoft.Extensions.Logging
 open Azure.Data.Tables
 open WebmentionService.Services
@@ -25,19 +25,20 @@ type WebmentionToRss (rssService:RssService) =
 
     member x.RssService = rssService
 
-    [<FunctionName("WebmentionToRss")>]
+    [<Function("WebmentionToRss")>]
     member x.Run
         ([<TimerTrigger("0 0 3 * * *")>] info: TimerInfo)
-        ([<Table("webmentions",Connection="AzureWebJobsStorage")>] t: TableClient)
-        ([<Blob("feeds/webmentions/index.xml", FileAccess.Write, Connection="AzureWebJobsStorage")>] rssBlob: Stream)
-        (log: ILogger) =
+        ([<TableInput("webmentions",Connection="AzureWebJobsStorage")>] t: TableClient)
+        ([<BlobOutput("feeds/webmentions/index.xml", Connection="AzureWebJobsStorage")>] rssBlob: Stream)
+        (context: FunctionContext) =
 
         task {
+            let logger = context.GetLogger("WebmentionToRss")
             let mentions = getMentions t
 
             let rss = x.RssService.BuildRssFeed mentions "lqdev's Webmentions" "http://lqdev.me" "lqdev's Webmentions" "en"
 
-            log.LogInformation(rss.ToString())                
+            logger.LogInformation("Generated RSS feed with webmentions")                
 
             use xmlWriter = XmlWriter.Create(rssBlob)
 
