@@ -8,7 +8,7 @@ open Microsoft.Extensions.Logging
 open Azure.Data.Tables
 open WebmentionService.Services
 
-type WebmentionToRss (rssService:RssService) = 
+type WebmentionToRss (rssService:RssService, tableServiceClient: TableServiceClient) = 
 
     let getMentions (t:TableClient) = 
         let timespan = 
@@ -27,13 +27,15 @@ type WebmentionToRss (rssService:RssService) =
 
     [<Function("WebmentionToRss")>]
     member x.Run
-        ([<TimerTrigger("0 0 3 * * *")>] info: TimerInfo)
-        ([<TableInput("webmentions",Connection="AzureWebJobsStorage")>] t: TableClient)
-        ([<BlobOutput("feeds/webmentions/index.xml", Connection="AzureWebJobsStorage")>] rssBlob: Stream)
-        (context: FunctionContext) =
+        ([<TimerTrigger("0 0 3 * * *")>] info: TimerInfo,
+         [<BlobOutput("feeds/webmentions/index.xml", Connection="AzureWebJobsStorage")>] rssBlob: Stream,
+         context: FunctionContext) =
 
         task {
             let logger = context.GetLogger("WebmentionToRss")
+            
+            // Get table client from injected service
+            let t = tableServiceClient.GetTableClient("webmentions")
             let mentions = getMentions t
 
             let rss = x.RssService.BuildRssFeed mentions "lqdev's Webmentions" "http://lqdev.me" "lqdev's Webmentions" "en"

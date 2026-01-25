@@ -5,6 +5,7 @@ module Program =
     open Microsoft.Extensions.Hosting
     open Microsoft.Extensions.DependencyInjection
     open Microsoft.Azure.Functions.Worker
+    open Azure.Data.Tables
     open WebmentionFs.Services
     open WebmentionService.Services
 
@@ -28,6 +29,11 @@ module Program =
 
                     // Add RSS service
                     services.AddScoped<RssService>() |> ignore
+
+                    // Add Table Storage client
+                    services.AddSingleton<TableServiceClient>(fun _ ->
+                        let connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage")
+                        new TableServiceClient(connectionString)) |> ignore
                 )
                 .Build()
 
