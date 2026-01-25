@@ -2,6 +2,8 @@
 
 An Azure Functions-based service for receiving, validating, and processing [Webmentions](https://www.w3.org/TR/webmention/) written in F#. This service accepts webmention notifications, validates them, stores them in Azure Table Storage, and generates RSS feeds from the collected mentions.
 
+**Live Service**: `https://webmentions.lqdev.tech/api/inbox`
+
 ## What are Webmentions?
 
 Webmentions are a web standard for notifications between websites. When someone mentions your website on their blog, social media, or any other web platform, a webmention allows your site to be automatically notified about the mention. This enables decentralized social interactions across the web.
@@ -37,7 +39,7 @@ The service consists of two main Azure Functions:
 
 ## Prerequisites
 
-- [.NET 6.0 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Azure Functions Core Tools](https://docs.microsoft.com/en-us/azure/azure-functions/functions-run-local)
 - Azure Storage Account (for Table Storage and Blob Storage)
 

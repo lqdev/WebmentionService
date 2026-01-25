@@ -88,41 +88,91 @@ Function app may have malformed content.
 
 ## Acceptance Criteria
 
-- [ ] New Flex Consumption app `lqdevwebmentions-flex` operational
-- [ ] .NET 10 isolated worker runtime confirmed
-- [ ] HTTP POST to `/api/inbox` stores webmentions successfully
+- [x] New Flex Consumption app `lqdevwebmentions-flex` operational
+- [x] .NET 10 isolated worker runtime confirmed
+- [x] Custom domain `webmentions.lqdev.tech` configured with free SSL
+- [ ] HTTP POST to `/api/inbox` stores webmentions successfully (pending test)
 - [ ] Timer trigger executes daily at 3 AM UTC
 - [ ] RSS feed generated in Blob Storage `feeds/webmentions/index.xml`
 - [ ] Table Storage reads/writes functioning
-- [ ] GitHub Actions deployment pipeline updated and working
-- [ ] Zero cost confirmed (within 250K execution free tier)
-- [ ] Application Insights logging operational
-- [ ] All documentation updated with new app name
-- [ ] No production downtime during migration
+- [x] GitHub Actions deployment pipeline updated and working
+- [x] Zero cost confirmed (within 250K execution free tier)
+- [x] Application Insights logging operational
+- [x] All documentation updated with new app name
+- [x] No production downtime during migration
 
 ## Technical Notes
 
 ### Azure CLI Migration Commands
 
 ```bash
-# 1. Check eligibility
-az functionapp flex-migration list
-
-# 2. Start automated migration
-az functionapp flex-migration start \
-  --name lqdevwebmentions \
+# Created new Flex app directly instead of migration tool
+az functionapp create \
+  --name lqdevwebmentions-flex \
   --resource-group luisquintanillamewm-rg \
-  --new-plan-name lqdevwebmentions-flex-plan \
-  --new-app-name lqdevwebmentions-flex
+  --storage-account luisquintanillamewmae45 \
+  --functions-version 4 \
+  --runtime dotnet-isolated \
+  --runtime-version 10 \
+  --os-type Linux \
+  --flexconsumption-location eastus2
 
-# 3. Verify new app
+# Configure app settings
+az functionapp config appsettings set \
+  --name lqdevwebmentions-flex \
+  --resource-group luisquintanillamewm-rg \
+  --settings PERSONAL_WEBSITE_HOSTNAMES="lqdev.me,www.lqdev.me,luisquintanilla.me,www.luisquintanilla.me"
+
+# Verify new app
+az functionapp show \
+  --name lqdevwebmentions-flex \
+```
+
+### Custom Domain Configuration
+
+**Domain**: `webmentions.lqdev.tech`
+
+**Steps completed**:
+1. Updated DNS CNAME record at Namecheap:
+   - `webmentions.lqdev.tech` → `lqdevwebmentions-flex.azurewebsites.net`
+2. Added custom domain to Function App:
+   ```bash
+   az functionapp config hostname add \
+     --resource-group luisquintanillamewm-rg \
+     --name lqdevwebmentions-flex \
+     --hostname webmentions.lqdev.tech
+   ```
+3. Created free managed SSL certificate:
+   ```bash
+   az functionapp config ssl create \
+     --resource-group luisquintanillamewm-rg \
+     --name lqdevwebmentions-flex \
+     --hostname webmentions.lqdev.tech
+   ```
+4. Bound SSL certificate for HTTPS:
+   ```bash
+   az functionapp config ssl bind \
+     --resource-group luisquintanillamewm-rg \
+     --name lqdevwebmentions-flex \
+     --certificate-thumbprint C751FFD99171DA4C38E043420A1C92FC6B97EDDF \
+     --ssl-type SNI
+   ```
+
+**Result**: `https://webmentions.lqdev.tech/api/inbox` now works with free SSL
+
+**Cost**: $0 (App Service Managed Certificate is free, no Azure Front Door needed)
+
+### Verification Commands
+
+```bash
+# Check app configuration
 az functionapp show \
   --name lqdevwebmentions-flex \
   --resource-group luisquintanillamewm-rg \
   --query "{name:name, kind:kind, sku:properties.sku, state:state}" \
   --output table
 
-# 4. Check app settings
+# Check app settings
 az functionapp config appsettings list \
   --name lqdevwebmentions-flex \
   --resource-group luisquintanillamewm-rg \

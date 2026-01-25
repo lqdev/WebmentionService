@@ -161,7 +161,6 @@ Configured in [Program.fs](Program.fs) during dependency injection setup.
 Current deployment target:
 - **Function App**: `lqdevwebmentions-flex`
 - **Resource Group**: `luisquintanillamewm-rg`
-- **Subscription**: `0ecbb599-849f-4d64-a97d-808abd3b8572`
 - **Plan Type**: Flex Consumption
 - **Runtime Stack**: `dotnet-isolated` version `10.0`
 - **Location**: East US 2
