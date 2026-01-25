@@ -140,10 +140,40 @@ curl -X POST https://your-function-app.azurewebsites.net/api/inbox \
 
 ### RSS Feed
 
-The generated RSS feed will be available at:
+The service generates an RSS feed daily at 3 AM UTC containing all webmentions. The feed is stored in **private** Azure Blob Storage for security and content control reasons.
+
+#### Accessing Your Private RSS Feed
+
+To access the feed in your RSS reader, generate a Shared Access Signature (SAS) token URL:
+
+```bash
+# Generate a SAS token with 3-year expiration and read-only access
+$expiry = (Get-Date).AddYears(3).ToString("yyyy-MM-ddTHH:mm:ssZ")
+az storage blob generate-sas \
+  --account-name <your-storage-account> \
+  --container-name feeds \
+  --name "webmentions/index.xml" \
+  --permissions r \
+  --expiry $expiry \
+  --https-only \
+  --full-uri \
+  --auth-mode key
 ```
-https://your-storage-account.blob.core.windows.net/feeds/webmentions/index.xml
+
+This generates a URL like:
 ```
+https://your-storage-account.blob.core.windows.net/feeds/webmentions/index.xml?se=2029-01-25...&sp=r&...
+```
+
+Add this URL to your RSS reader (NewsBlur, Elfeed, Feedly, etc.) to consume your webmentions.
+
+**Why Private?**
+- **Content Control**: Webmentions are for notification purposes, not content redistribution
+- **Security**: Prevents spam harvesters from scraping your feed
+- **Privacy**: Keeps mentions private until you decide to publish them
+- **No Moderation Overhead**: You're not publicly resharing potentially problematic content
+
+For more details, see the [original blog post](https://lqdev.me/posts/receive-webmentions-fsharp-az-functions-fsadvent/).
 
 ## Data Storage
 

@@ -6,9 +6,10 @@ open System.Xml
 open Microsoft.Azure.Functions.Worker
 open Microsoft.Extensions.Logging
 open Azure.Data.Tables
+open Azure.Storage.Blobs
 open WebmentionService.Services
 
-type WebmentionToRss (rssService:RssService) = 
+type WebmentionToRss (rssService:RssService, tableServiceClient: TableServiceClient, blobServiceClient: BlobServiceClient) = 
 
     let getMentions (t:TableClient) = 
         let timespan = 
@@ -27,20 +28,34 @@ type WebmentionToRss (rssService:RssService) =
 
     [<Function("WebmentionToRss")>]
     member x.Run
-        ([<TimerTrigger("0 0 3 * * *")>] info: TimerInfo)
-        ([<TableInput("webmentions",Connection="AzureWebJobsStorage")>] t: TableClient)
-        ([<BlobOutput("feeds/webmentions/index.xml", Connection="AzureWebJobsStorage")>] rssBlob: Stream)
-        (context: FunctionContext) =
+        ([<TimerTrigger("0 0 3 * * *")>] info: TimerInfo,
+         context: FunctionContext) =
 
         task {
             let logger = context.GetLogger("WebmentionToRss")
+            
+            // Get table client from injected service
+            let t = tableServiceClient.GetTableClient("webmentions")
             let mentions = getMentions t
 
             let rss = x.RssService.BuildRssFeed mentions "lqdev's Webmentions" "http://lqdev.me" "lqdev's Webmentions" "en"
 
-            logger.LogInformation("Generated RSS feed with webmentions")                
+            logger.LogInformation("Generated RSS feed with webmentions")
 
-            use xmlWriter = XmlWriter.Create(rssBlob)
-
-            rss.WriteTo(xmlWriter) |> ignore
+            // Get blob client from injected service
+            let containerClient = blobServiceClient.GetBlobContainerClient("feeds")
+            do! containerClient.CreateIfNotExistsAsync() |> Async.AwaitTask |> Async.Ignore
+            
+            let blobClient = containerClient.GetBlobClient("webmentions/index.xml")
+            
+            // Write RSS to blob storage
+            use memoryStream = new MemoryStream()
+            use xmlWriter = XmlWriter.Create(memoryStream)
+            rss.WriteTo(xmlWriter)
+            xmlWriter.Flush()
+            memoryStream.Position <- 0L
+            
+            do! blobClient.UploadAsync(memoryStream, overwrite = true) |> Async.AwaitTask |> Async.Ignore
+            
+            logger.LogInformation("RSS feed uploaded to blob storage successfully")
         }

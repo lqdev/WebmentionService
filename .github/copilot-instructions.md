@@ -6,10 +6,12 @@
 
 ### Project Characteristics
 - **Language**: F# (functional programming)
-- **Framework**: Azure Functions v4, .NET 6.0
-- **Size**: Small codebase (~500 lines total, 5 F# source files)
+- **Framework**: Azure Functions v4, .NET 10.0 LTS (isolated worker)
+- **Platform**: Azure Flex Consumption (Linux)
+- **Size**: Small codebase (~600 lines total, 6 F# source files)
 - **Type**: Serverless microservice / Azure Functions application
 - **No Tests**: This repository does not have a test suite
+- **Deployment**: `lqdevwebmentions-flex` at `https://webmentions.lqdev.tech/api/inbox`
 
 ### Key Dependencies
 - `lqdev.WebmentionFs` (v0.0.7) - Core webmention validation library
@@ -35,7 +37,7 @@
 
 4. **Services**
    - `RssService.fs`: RSS feed generation logic
-   - `Startup.fs`: Dependency injection configuration
+   - `Program.fs`: Entry point and dependency injection configuration
 
 ### File Structure
 ```
@@ -55,18 +57,18 @@
 
 ### Prerequisites
 
-**CRITICAL**: This project requires **.NET 6.0 runtime** to build successfully. The default environment may have .NET 8.0+, but .NET 6.0 is mandatory.
+**CRITICAL**: This project requires **.NET 10.0 runtime** to build successfully.
 
-**Installation Command** (if .NET 6.0 is missing):
+**Installation Command** (if .NET 10.0 is missing):
 ```bash
 wget https://dot.net/v1/dotnet-install.sh -O /tmp/dotnet-install.sh
 chmod +x /tmp/dotnet-install.sh
-/tmp/dotnet-install.sh --channel 6.0 --runtime dotnet --install-dir /usr/share/dotnet
+/tmp/dotnet-install.sh --channel 10.0
 ```
 
 Verify installation:
 ```bash
-dotnet --list-runtimes | grep "6.0"
+dotnet --list-sdks | grep "10.0"
 ```
 
 ### Build Commands
@@ -85,8 +87,8 @@ dotnet --list-runtimes | grep "6.0"
    dotnet build
    ```
    - Takes ~2-8 seconds after restore
-   - Output: `bin/Debug/net6.0/WebmentionService.dll`
-   - **Will fail** if .NET 6.0 runtime is not installed with error about "Microsoft.NETCore.App version 6.0.0" not found
+   - Output: `bin/Debug/net10.0/WebmentionService.dll`
+   - **Will fail** if .NET 10.0 runtime is not installed
 
 3. **Clean**:
    ```bash

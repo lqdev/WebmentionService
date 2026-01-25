@@ -13,19 +13,22 @@ open WebmentionFs
 open WebmentionFs.Services
 
 
-type ReceiveWebmention (requestValidationService: RequestValidationService, webmentionValidationService: WebmentionValidationService) = 
+type ReceiveWebmention (requestValidationService: RequestValidationService, webmentionValidationService: WebmentionValidationService, tableServiceClient: TableServiceClient) = 
 
     member x.RequestValidationService = requestValidationService
     member x.WebmentionValidationService = webmentionValidationService
+    member x.TableServiceClient = tableServiceClient
 
     [<Function("ReceiveWebmention")>]
     member x.Run 
-        ([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "inbox")>] req: HttpRequestData) 
-        ([<TableInput("webmentions", Connection="AzureWebJobsStorage")>] tableClient: TableClient)
-        (context: FunctionContext) : Task<HttpResponseData> =
+        ([<HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "inbox")>] req: HttpRequestData,
+         context: FunctionContext) : Task<HttpResponseData> =
         task {
             let logger = context.GetLogger("ReceiveWebmention")
             logger.LogInformation("Processing webmention request")
+            
+            // Get table client from injected service
+            let tableClient = x.TableServiceClient.GetTableClient("webmentions")
 
             // Read form body
             use reader = new StreamReader(req.Body)
@@ -44,16 +47,17 @@ type ReceiveWebmention (requestValidationService: RequestValidationService, webm
                 // Create UrlData for validation (Source and Target, not SourceUrl/TargetUrl)
                 let urlData: UrlData = { Source = Uri(source); Target = Uri(target) }
                 
-                // Validate request
-                let! requestValidationResult = x.RequestValidationService.ValidateAsync(urlData)
-                
-                match requestValidationResult with
-                | RequestError errorMsg ->
-                    logger.LogError($"Invalid webmention request: {errorMsg}")
-                    let response = req.CreateResponse(HttpStatusCode.BadRequest)
-                    do! response.WriteStringAsync("Invalid webmention request")
-                    return response
-                | RequestSuccess validData ->
+                try
+                    // Validate request
+                    let! requestValidationResult = x.RequestValidationService.ValidateAsync(urlData)
+                    
+                    match requestValidationResult with
+                    | RequestError errorMsg ->
+                        logger.LogError($"Invalid webmention request: {errorMsg}")
+                        let response = req.CreateResponse(HttpStatusCode.BadRequest)
+                        do! response.WriteStringAsync("Invalid webmention request")
+                        return response
+                    | RequestSuccess validData ->
                     // Validate webmention (returns WebmentionValidationResult)
                     let! webmentionValidationResult = x.WebmentionValidationService.ValidateAsync validData.Source validData.Target
                     
@@ -103,4 +107,15 @@ type ReceiveWebmention (requestValidationService: RequestValidationService, webm
                             let response = req.CreateResponse(HttpStatusCode.InternalServerError)
                             do! response.WriteStringAsync("Error processing webmention")
                             return response
+                with
+                | :? TaskCanceledException as ex ->
+                    logger.LogWarning($"Validation timed out for {source} to {target}: {ex.Message}")
+                    let response = req.CreateResponse(HttpStatusCode.RequestTimeout)
+                    do! response.WriteStringAsync("Webmention validation timed out")
+                    return response
+                | ex ->
+                    logger.LogError($"Error validating webmention: {ex.Message}")
+                    let response = req.CreateResponse(HttpStatusCode.InternalServerError)
+                    do! response.WriteStringAsync("Error validating webmention")
+                    return response
         }
