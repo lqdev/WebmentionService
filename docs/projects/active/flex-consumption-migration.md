@@ -74,6 +74,8 @@ Function app may have malformed content.
 - [ ] Move this project to docs/projects/completed/
 
 ### Phase 6: Cutover & Monitoring
+- [x] Generate SAS token for private RSS feed access (3-year expiration, read-only)
+- [x] Test RSS feed in NewsBlur reader (verified working)
 - [ ] Update any external URLs/webhooks to new app (if applicable)
 - [ ] Monitor new app for 24-48 hours
 - [ ] Disable old app (stop, don't delete)
@@ -103,6 +105,30 @@ Function app may have malformed content.
 - [x] No production downtime during migration
 
 ## Technical Notes
+
+### RSS Feed Private Access
+
+**SAS Token URL Generation** (read-only, 3-year expiration):
+```bash
+$expiry = (Get-Date).AddYears(3).ToString("yyyy-MM-ddTHH:mm:ssZ")
+az storage blob generate-sas \
+  --account-name luisquintanillamewmae45 \
+  --container-name feeds \
+  --name "webmentions/index.xml" \
+  --permissions r \
+  --expiry $expiry \
+  --https-only \
+  --full-uri \
+  --auth-mode key
+```
+
+**Why Private Feed?**
+- **Notifications First**: Webmentions are for notifications, not content redistribution
+- **No Moderation Needed**: Not publicly resharing potentially problematic content
+- **RSS Reader Compatible**: NewsBlur, Elfeed, and other readers support private feeds
+- **Security**: Only accessible with SAS token, prevents scraping
+
+See [original design decisions](https://lqdev.me/posts/receive-webmentions-fsharp-az-functions-fsadvent/#why-rss) for full rationale.
 
 ### Azure CLI Migration Commands
 
