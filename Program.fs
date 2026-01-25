@@ -6,6 +6,7 @@ module Program =
     open Microsoft.Extensions.DependencyInjection
     open Microsoft.Azure.Functions.Worker
     open Azure.Data.Tables
+    open Azure.Storage.Blobs
     open WebmentionFs.Services
     open WebmentionService.Services
 
@@ -34,6 +35,11 @@ module Program =
                     services.AddSingleton<TableServiceClient>(fun _ ->
                         let connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage")
                         new TableServiceClient(connectionString)) |> ignore
+
+                    // Add Blob Storage client
+                    services.AddSingleton<BlobServiceClient>(fun _ ->
+                        let connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage")
+                        new BlobServiceClient(connectionString)) |> ignore
                 )
                 .Build()
 
