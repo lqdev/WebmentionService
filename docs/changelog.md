@@ -21,10 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated all Azure Functions packages to isolated worker versions
 - **Migrated from Linux Consumption to Flex Consumption plan** (required for .NET 10)
 - Updated GitHub Actions workflow to deploy to new Flex app
-- **Replaced TableInput bindings with dependency injection pattern** for TableServiceClient
+- **Replaced TableInput and BlobOutput bindings with dependency injection pattern** for TableServiceClient and BlobServiceClient
 
 ### Fixed
 - TableInput binding connection string resolution on Flex Consumption
+- BlobOutput binding null parameter issue on Flex Consumption (manual trigger via admin API)
 - Validation timeout handling - prevents 100+ second failures on slow/invalid URLs
 - F# indentation in match expressions
 
@@ -35,8 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated WebmentionToRss.fs for isolated worker model
 - Modified WebmentionService.fsproj to target net10.0
 - Created new Function App with runtime: `dotnet-isolated` version `10.0`
-- Injected TableServiceClient via DI instead of using TableInput attribute
+- Injected TableServiceClient and BlobServiceClient via DI instead of using binding attributes
 - Added exception handling for validation timeouts (TaskCanceledException)
+- RSS feed generation uses MemoryStream with proper blob container auto-creation
 - Configured app settings: PERSONAL_WEBSITE_HOSTNAMES (all domains)
 - Updated deployment target in GitHub Actions from `lqdevwebmentions` to `lqdevwebmentions-flex`
 

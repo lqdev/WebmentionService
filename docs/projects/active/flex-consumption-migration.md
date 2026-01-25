@@ -60,8 +60,8 @@ Function app may have malformed content.
 - [x] Test HTTP endpoint: `POST https://lqdevwebmentions-flex.azurewebsites.net/api/inbox`
 - [x] Send test webmention and verify Table Storage write (real webmention processed in 909ms)
 - [x] Verify timer trigger registration (daily at 3 AM UTC)
-- [ ] Manually trigger timer or wait for scheduled execution
-- [ ] Verify RSS feed generation in Blob Storage
+- [x] Manually trigger timer or wait for scheduled execution (triggered via admin API)
+- [x] Verify RSS feed generation in Blob Storage (10KB RSS feed successfully generated)
 - [x] Check Application Insights for logs and errors
 - [x] Monitor cold start performance (sub-second execution: 909ms)
 
@@ -94,7 +94,7 @@ Function app may have malformed content.
 - [x] Custom domain `webmentions.lqdev.tech` configured with free SSL
 - [x] HTTP POST to `/api/inbox` stores webmentions successfully (tested with real webmention)
 - [x] Timer trigger executes daily at 3 AM UTC (registered and configured)
-- [ ] RSS feed generated in Blob Storage `feeds/webmentions/index.xml` (pending scheduled execution)
+- [x] RSS feed generated in Blob Storage `feeds/webmentions/index.xml` (10,217 bytes, verified)
 - [x] Table Storage reads/writes functioning
 - [x] GitHub Actions deployment pipeline updated and working
 - [x] Zero cost confirmed (within 250K execution free tier)
@@ -309,12 +309,15 @@ Monitor via:
 
 ## Lessons Learned
 
-### TableInput Binding Compatibility Issue
-- **Issue**: `[<TableInput(..., Connection="...")>]` attributes don't work on Flex Consumption
-- **Symptom**: HTTP 500 errors with `ArgumentNullException: connectionString cannot be null`
-- **Solution**: Use dependency injection pattern with `TableServiceClient` registered in Program.fs
+### Input/Output Binding Compatibility Issues
+- **Issue**: `[<TableInput(..., Connection="...")>]` and `[<BlobOutput(...)>]` attributes don't work reliably on Flex Consumption
+- **Symptoms**: 
+  - TableInput: HTTP 500 errors with `ArgumentNullException: connectionString cannot be null`
+  - BlobOutput: `ArgumentNullException: output cannot be null` when manually triggered
+- **Solution**: Use dependency injection pattern with `TableServiceClient` and `BlobServiceClient` registered in Program.fs
 - **Impact**: Required code changes to ReceiveWebmention.fs and WebmentionToRss.fs
 - **Prevention**: Test all bindings on Flex Consumption platform before production deployment
+- **Pattern**: For Flex Consumption, prefer DI-injected clients over binding attributes for reliable operation
 
 ### Validation Timeout Handling
 - **Issue**: Webmention validation against invalid/slow URLs caused 100+ second failures
