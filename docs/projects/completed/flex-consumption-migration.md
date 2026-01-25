@@ -1,9 +1,10 @@
 # Flex Consumption Plan Migration
 
 **Start Date**: 2026-01-25  
-**Status**: Complete - Testing Phase  
+**Completion Date**: 2026-01-25  
+**Status**: ✅ Complete  
 **Issue**: Deployment failure after .NET 10 upgrade (Resolved via PR #7)  
-**Branch**: `migrate/flex-consumption-dotnet10` (merged to main)  
+**Branch**: `migrate/flex-consumption-dotnet10` (merged to main via PR #10)  
 **ADR**: [0002-migrate-to-flex-consumption-for-dotnet10.md](../adr/0002-migrate-to-flex-consumption-for-dotnet10.md)
 
 ## Goals

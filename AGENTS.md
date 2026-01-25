@@ -17,7 +17,8 @@
 - **Size**: Small codebase (~600 lines total, 6 F# source files)
 - **Type**: Serverless microservice / Azure Functions application
 - **Testing**: No automated test suite - validation is manual
-- **Deployment**: Azure Function App `lqdevwebmentions-flex` (Flex Consumption) in resource group `luisquintanillamewm-rg`
+- **Deployment**: Azure Function App `lqdevwebmentions-flex` (Flex Consumption, Linux) in resource group `luisquintanillamewm-rg`
+- **Endpoint**: `https://webmentions.lqdev.tech/api/inbox` (custom domain with free SSL)
 
 ### Key Dependencies
 - `lqdev.WebmentionFs` (v0.0.7) - Core webmention validation library
