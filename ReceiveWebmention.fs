@@ -53,11 +53,11 @@ type ReceiveWebmention (requestValidationService: RequestValidationService, webm
                     
                     match requestValidationResult with
                     | RequestError errorMsg ->
-                    logger.LogError($"Invalid webmention request: {errorMsg}")
-                    let response = req.CreateResponse(HttpStatusCode.BadRequest)
-                    do! response.WriteStringAsync("Invalid webmention request")
-                    return response
-                | RequestSuccess validData ->
+                        logger.LogError($"Invalid webmention request: {errorMsg}")
+                        let response = req.CreateResponse(HttpStatusCode.BadRequest)
+                        do! response.WriteStringAsync("Invalid webmention request")
+                        return response
+                    | RequestSuccess validData ->
                     // Validate webmention (returns WebmentionValidationResult)
                     let! webmentionValidationResult = x.WebmentionValidationService.ValidateAsync validData.Source validData.Target
                     
