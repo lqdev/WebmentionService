@@ -17,7 +17,7 @@
 - **Size**: Small codebase (~600 lines total, 6 F# source files)
 - **Type**: Serverless microservice / Azure Functions application
 - **Testing**: No automated test suite - validation is manual
-- **Deployment**: Azure Function App `lqdevwebmentions` in resource group `luisquintanillamewm-rg`
+- **Deployment**: Azure Function App `lqdevwebmentions-flex` (Flex Consumption) in resource group `luisquintanillamewm-rg`
 
 ### Key Dependencies
 - `lqdev.WebmentionFs` (v0.0.7) - Core webmention validation library
@@ -159,10 +159,13 @@ Configured in [Program.fs](Program.fs) during dependency injection setup.
 ### Azure Function App Settings
 
 Current deployment target:
-- **Function App**: `lqdevwebmentions`
+- **Function App**: `lqdevwebmentions-flex`
 - **Resource Group**: `luisquintanillamewm-rg`
 - **Subscription**: `0ecbb599-849f-4d64-a97d-808abd3b8572`
-- **Runtime Stack**: `DOTNET-ISOLATED|10.0`
+- **Plan Type**: Flex Consumption
+- **Runtime Stack**: `dotnet-isolated` version `10.0`
+- **Location**: East US 2
+- **Old App** (deprecated): `lqdevwebmentions` (Linux Consumption, to be disabled after migration validation)
 
 ## Testing & Validation
 
