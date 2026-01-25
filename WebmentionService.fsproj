@@ -8,10 +8,9 @@
   <ItemGroup>
     <Compile Include="Domain.fs" />
     <Compile Include="RssService.fs" />
-    <Compile Include="Program.fs" />
     <Compile Include="ReceiveWebmention.fs" />
     <Compile Include="WebmentionToRss.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>

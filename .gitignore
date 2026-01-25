@@ -8,6 +8,10 @@ metadata.json
 # Azure Functions localsettings file
 local.settings.json
 
+# Deployment artifacts
+deploy.zip
+publish/
+
 # User-specific files
 *.suo
 *.user
