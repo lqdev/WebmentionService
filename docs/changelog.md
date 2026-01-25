@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AGENTS.md for AI assistant guidance
 - New Azure Flex Consumption Function App: `lqdevwebmentions-flex`
 - ADR 0002: Migration to Flex Consumption plan for .NET 10 support
+- Timeout handling with try/catch for `TaskCanceledException` in validation
 
 ### Changed
 - Upgraded from .NET 6.0 to .NET 10.0 LTS
@@ -20,6 +21,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated all Azure Functions packages to isolated worker versions
 - **Migrated from Linux Consumption to Flex Consumption plan** (required for .NET 10)
 - Updated GitHub Actions workflow to deploy to new Flex app
+- **Replaced TableInput bindings with dependency injection pattern** for TableServiceClient
+
+### Fixed
+- TableInput binding connection string resolution on Flex Consumption
+- Validation timeout handling - prevents 100+ second failures on slow/invalid URLs
+- F# indentation in match expressions
 
 ### Technical
 - Created Program.fs as new entry point
@@ -28,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated WebmentionToRss.fs for isolated worker model
 - Modified WebmentionService.fsproj to target net10.0
 - Created new Function App with runtime: `dotnet-isolated` version `10.0`
+- Injected TableServiceClient via DI instead of using TableInput attribute
+- Added exception handling for validation timeouts (TaskCanceledException)
 - Configured app settings: PERSONAL_WEBSITE_HOSTNAMES (all domains)
 - Updated deployment target in GitHub Actions from `lqdevwebmentions` to `lqdevwebmentions-flex`
 
